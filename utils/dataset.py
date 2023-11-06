@@ -1,8 +1,10 @@
 import torch
 from torchvision import transforms, datasets
+import os
 
-def load_dataset(dataset, cache_dir, train, normalize=True):
+def load_dataset(dataset, dataset_dir, cache_dir, train, normalize=True):
     if hasattr(datasets, dataset):
+        cache_dir = os.path.join(cache_dir, dataset)
         if dataset == 'CIFAR10':
             transform = transforms.Compose([
                 transforms.ToTensor(),
@@ -14,8 +16,8 @@ def load_dataset(dataset, cache_dir, train, normalize=True):
         
         return dataset, len(dataset.classes)
     
-    return torch.load(dataset)
+    return torch.load(os.path.join(dataset_dir, dataset))
 
 def save_dataset(dataset, save_path, num_classes):
     torch.save([dataset, num_classes], save_path)
-    print(f"Dataset saved to {save_path}.")
+    print(f"Dataset saved to {save_path}")

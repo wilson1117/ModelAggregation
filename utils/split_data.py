@@ -14,8 +14,12 @@ parser.add_argument('--dataset-cache', default='./datasets', type=str, help='cac
 parser.add_argument('--num-client', type=int, default=2, help='number of clients')
 parser.add_argument('--fintune-sample', type=int, default=10, help='number of each samples category for finetune')
 parser.add_argument('--num-class', type=int, default=10, help='number of classes')
+parser.add_argument('--seed', type=int, default=0, help='random seed')
 
 args = parser.parse_args()
+
+torch.manual_seed(args.seed)
+np.random.seed(args.seed)
 
 dataset_dir = os.path.join(args.dir, 'data')
 result_img_dir = os.path.join(args.dir, 'imgs')
@@ -23,7 +27,7 @@ result_img_dir = os.path.join(args.dir, 'imgs')
 os.makedirs(dataset_dir, exist_ok=True)
 os.makedirs(result_img_dir, exist_ok=True)
 
-dataset, num_classes = load_dataset(args.dataset, os.path.join(args.dataset_cache, args.dataset), True)
+dataset, num_classes = load_dataset(args.dataset, dataset_dir, args.dataset_cache, True)
 
 print('loading indices...')
 class_index = [[] for _ in range(args.num_class)]
@@ -46,7 +50,7 @@ for d in distribute:
     ax.bar(range(args.num_class), d, bottom=bottom_count)
     bottom_count += d
 
-plt.savefig(os.path.join(result_img_dir, '{}_{}_distribute.png'.format(args.dataset, args.num_client)))
+plt.savefig(os.path.join(result_img_dir, '{}_split{}_distribute_{}.png'.format(args.dataset, args.num_client, args.seed)))
 
 bottom_idx = np.zeros(args.num_class).astype(int)
 output_dataset = []
@@ -59,6 +63,6 @@ for dist in distribute:
     output_dataset.append(Subset(dataset, indices))
 
 for idx, item in enumerate(output_dataset[:-1]):
-    save_dataset(item, os.path.join(dataset_dir, '{}-client{}-{}.pt'.format(args.dataset, args.num_client, idx + 1)), num_classes)
+    save_dataset(item, os.path.join(dataset_dir, '{}-client{}_{}.pt'.format(args.dataset, idx + 1, args.seed)), num_classes)
 
-save_dataset(output_dataset[-1], os.path.join(dataset_dir, '{}-{}-fintune.pt'.format(args.dataset, args.num_client)), num_classes)
+save_dataset(output_dataset[-1], os.path.join(dataset_dir, '{}-fintune_{}.pt'.format(args.dataset, args.seed)), num_classes)
