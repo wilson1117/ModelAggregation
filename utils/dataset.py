@@ -15,3 +15,7 @@ def load_dataset(dataset, cache_dir, train, normalize=True):
         return dataset, len(dataset.classes)
     
     return torch.load(dataset)
+
+def save_dataset(dataset, save_path, num_classes):
+    torch.save([dataset, num_classes], save_path)
+    print(f"Dataset saved to {save_path}.")

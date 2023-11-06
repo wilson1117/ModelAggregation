@@ -5,7 +5,7 @@ from tqdm import tqdm
 import numpy as np
 import argparse
 import os
-from dataset import load_dataset
+from dataset import *
 
 parser = argparse.ArgumentParser(description='Generate dataset for training')
 parser.add_argument('--dir', type=str, default='./tmp', help='directory to save files')
@@ -59,6 +59,6 @@ for dist in distribute:
     output_dataset.append(Subset(dataset, indices))
 
 for idx, item in enumerate(output_dataset[:-1]):
-    torch.save(item, os.path.join(dataset_dir, '{}-client{}-{}.pt'.format(args.dataset, args.num_client, idx + 1)))
+    save_dataset(item, os.path.join(dataset_dir, '{}-client{}-{}.pt'.format(args.dataset, args.num_client, idx + 1)), num_classes)
 
-torch.save(output_dataset[-1], os.path.join(dataset_dir, '{}-{}-fintune.pt'.format(args.dataset, args.num_client)))
+save_dataset(output_dataset[-1], os.path.join(dataset_dir, '{}-{}-fintune.pt'.format(args.dataset, args.num_client)), num_classes)
