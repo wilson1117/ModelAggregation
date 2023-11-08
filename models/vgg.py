@@ -1,4 +1,10 @@
+import path
+import sys
+path = path.Path().parent.abspath()
+sys.path.append(path)
+
 from torch import nn
+from utils.alignment import *
 
 class VGG(nn.Module):
     def __init__(self, block_config, num_classes):
@@ -39,6 +45,10 @@ class VGGConv(nn.Module):
             x = self.pool(x)
         return x
     
+    def align(self, indices):
+        align_neuron(self.conv, indices)
+        align_normalize(self.bn, indices)
+    
 class VGGFc(nn.Module):
     def __init__(self, in_channel, out_channel, flatten=False):
         super(VGGFc, self).__init__()
@@ -55,6 +65,10 @@ class VGGFc(nn.Module):
         x = self.bn(x)
         x = self.act(x)
         return x
+    
+    def align(self, indices):
+        align_neuron(self.fc, indices)
+        align_normalize(self.bn, indices)
 
 class VGG16(VGG):
     block_config = [[64, 64], [128, 128], [256, 256, 256], [512, 512, 512], [512, 512, 512]]
